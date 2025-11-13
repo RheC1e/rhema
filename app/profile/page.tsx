@@ -196,7 +196,10 @@ export default function Profile() {
             throw new Error("無法取得同仁資料");
           }
 
-          const data = await response.json();
+          const data: {
+            value?: Colleague[];
+            "@odata.nextLink"?: string;
+          } = await response.json();
           if (Array.isArray(data.value)) {
             for (const item of data.value) {
               users.push(item);
