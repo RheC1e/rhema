@@ -8,7 +8,7 @@ export const msalConfig: Configuration = {
     redirectUri: typeof window !== "undefined" ? window.location.origin : "http://localhost:3000",
   },
   cache: {
-    cacheLocation: "sessionStorage", // 使用 sessionStorage 儲存 token
+    cacheLocation: "localStorage", // 使用 localStorage 儲存 token，關閉分頁後仍可保持登入
     storeAuthStateInCookie: false,
   },
 };
