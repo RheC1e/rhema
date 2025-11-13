@@ -37,6 +37,7 @@ export default function Profile() {
   const userId = searchParams.get("userId");
 
   const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [myProfile, setMyProfile] = useState<ProfileData | null>(null);
   const [myProfileId, setMyProfileId] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const avatarUrlRef = useRef<string | null>(null);
@@ -80,6 +81,53 @@ export default function Profile() {
 
   useEffect(() => {
     const activeAccount = instance.getActiveAccount() ?? accounts[0];
+    if (!activeAccount || myProfile) {
+      return;
+    }
+
+    let isMounted = true;
+
+    const fetchMyProfile = async () => {
+      try {
+        const tokenResponse = await instance.acquireTokenSilent({
+          ...loginRequest,
+          account: activeAccount,
+        });
+
+        const headers = {
+          Authorization: `Bearer ${tokenResponse.accessToken}`,
+        };
+
+        const response = await fetch(`${graphConfig.graphMeEndpoint}?$select=${PROFILE_SELECT}`, {
+          headers,
+        });
+
+        if (!response.ok) {
+          throw new Error("無法取得個人資料");
+        }
+
+        const data: ProfileData = await response.json();
+
+        if (!isMounted) {
+          return;
+        }
+
+        setMyProfile(data);
+        setMyProfileId(data.id);
+      } catch (error) {
+        console.error("取得個人資料失敗:", error);
+      }
+    };
+
+    fetchMyProfile();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [accounts, instance, myProfile]);
+
+  useEffect(() => {
+    const activeAccount = instance.getActiveAccount() ?? accounts[0];
     if (!activeAccount) {
       return;
     }
@@ -100,25 +148,34 @@ export default function Profile() {
           Authorization: `Bearer ${tokenResponse.accessToken}`,
         };
 
-        const profileEndpoint = userId
-          ? `${graphConfig.graphUsersEndpoint}/${userId}?$select=${PROFILE_SELECT}`
-          : `${graphConfig.graphMeEndpoint}?$select=${PROFILE_SELECT}`;
+        let profileData: ProfileData | null = null;
 
-        const profileResponse = await fetch(profileEndpoint, {
-          headers: baseHeaders,
-        });
-
-        if (!profileResponse.ok) {
-          throw new Error("無法取得個人資料");
+        if (!userId && myProfile) {
+          profileData = myProfile;
         }
 
-        const profileData: ProfileData = await profileResponse.json();
+        if (!profileData) {
+          const profileEndpoint = userId
+            ? `${graphConfig.graphUsersEndpoint}/${userId}?$select=${PROFILE_SELECT}`
+            : `${graphConfig.graphMeEndpoint}?$select=${PROFILE_SELECT}`;
 
-        if (!userId) {
-          setMyProfileId(profileData.id);
+          const profileResponse = await fetch(profileEndpoint, {
+            headers: baseHeaders,
+          });
+
+          if (!profileResponse.ok) {
+            throw new Error("無法取得個人資料");
+          }
+
+          profileData = await profileResponse.json();
+
+          if (!userId && isMounted) {
+            setMyProfile(profileData);
+            setMyProfileId(profileData.id);
+          }
         }
 
-        if (!isMounted) {
+        if (!profileData || !isMounted) {
           return;
         }
 
@@ -349,7 +406,7 @@ export default function Profile() {
                 className={`colleague-item ${!userId ? "active" : ""}`}
               >
                 <div className="colleague-name">我的資料</div>
-                <div className="colleague-email">{profile?.mail || profile?.userPrincipalName || ""}</div>
+                <div className="colleague-email">{myProfile?.mail || myProfile?.userPrincipalName || (profileLoading ? "載入中..." : "")}</div>
               </Link>
               {colleaguesToDisplay.map((colleague) => {
                 const name = colleague.displayName || colleague.userPrincipalName || "未命名";
