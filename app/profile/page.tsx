@@ -169,9 +169,15 @@ export default function Profile() {
 
           profileData = await profileResponse.json();
 
+          if (!profileData) {
+            throw new Error("未取得個人資料");
+          }
+
           if (!userId && isMounted) {
             setMyProfile(profileData);
-            setMyProfileId(profileData.id);
+            if (profileData.id) {
+              setMyProfileId(profileData.id);
+            }
           }
         }
 
