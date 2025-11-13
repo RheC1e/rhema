@@ -8,6 +8,7 @@
 - ✅ 使用 MSAL (Microsoft Authentication Library) 進行安全認證
 - ✅ 顯示完整的個人資訊
 - ✅ 響應式設計，支援深色模式
+- ✅ PWA (Progressive Web App) 支援，可安裝到手機和電腦
 
 ## 技術棧
 
@@ -15,6 +16,7 @@
 - **認證**: @azure/msal-react, @azure/msal-browser
 - **API**: Microsoft Graph API
 - **語言**: TypeScript
+- **PWA**: @ducanh2912/next-pwa
 
 ## 環境變數設定
 
@@ -186,8 +188,80 @@ RHEMA/
 ├── next.config.js
 ├── package.json
 ├── tsconfig.json
+├── public/
+│   ├── manifest.json        # PWA 設定檔
+│   └── icons/               # PWA 圖示
 └── README.md
 ```
+
+## PWA (Progressive Web App) 設定
+
+此專案已設定為 PWA，使用者可以將網站安裝到手機或電腦上，像原生應用程式一樣使用。
+
+### PWA 功能
+
+- ✅ **可安裝**：使用者可以將網站添加到主畫面
+- ✅ **離線快取**：部分內容可以離線使用
+- ✅ **快速載入**：使用 Service Worker 快取資源
+- ✅ **原生體驗**：全螢幕顯示，無瀏覽器工具列
+
+### 設定圖示
+
+PWA 需要多種尺寸的圖示檔案。請按照以下步驟設定：
+
+1. **準備原始圖示**
+   - 建立一個 512x512 像素的圖示（PNG 格式）
+   - 建議使用公司 Logo 或品牌標識
+
+2. **生成所有尺寸的圖示**
+
+   **方法 1：使用線上工具（推薦）**
+   - 前往 https://www.pwabuilder.com/imageGenerator
+   - 上傳您的 512x512 圖示
+   - 下載生成的圖示套件
+   - 將所有圖示檔案放到 `public/icons/` 資料夾中
+
+   **方法 2：使用設計工具**
+   - 使用 Figma、Photoshop 或其他設計工具
+   - 導出以下尺寸的 PNG 檔案：
+     - 72x72, 96x96, 128x128, 144x144, 152x152, 192x192, 384x384, 512x512
+   - 將所有檔案放到 `public/icons/` 資料夾中
+
+3. **檔案命名**
+   確保檔案名稱符合以下格式：
+   - `icon-72x72.png`
+   - `icon-96x96.png`
+   - `icon-128x128.png`
+   - `icon-144x144.png`
+   - `icon-152x152.png`
+   - `icon-192x192.png`
+   - `icon-384x384.png`
+   - `icon-512x512.png`
+
+### 測試 PWA
+
+1. **本地測試**
+   ```bash
+   npm run build
+   npm start
+   ```
+   然後在瀏覽器中開啟網站，檢查是否有「安裝」提示
+
+2. **生產環境測試**
+   - 部署到 Vercel 後
+   - 使用 HTTPS 連線（Vercel 自動提供）
+   - 在手機或電腦瀏覽器中開啟網站
+   - 應該會看到「添加到主畫面」或「安裝」選項
+
+### 自訂 PWA 設定
+
+您可以編輯 `public/manifest.json` 來自訂：
+- 應用程式名稱
+- 主題顏色
+- 顯示模式
+- 啟動畫面顏色
+
+詳細說明請參考 `public/icons/README.md`
 
 ## 疑難排解
 
@@ -202,6 +276,14 @@ RHEMA/
 1. 確認 API 權限已正確設定
 2. 檢查環境變數是否正確設定
 3. 確認使用者帳號屬於正確的租用戶
+
+### PWA 無法安裝
+
+1. 確認網站使用 HTTPS（生產環境必須）
+2. 檢查 `manifest.json` 是否正確設定
+3. 確認所有圖示檔案都存在於 `public/icons/` 資料夾中
+4. 檢查瀏覽器主控台是否有錯誤訊息
+5. 確認 Service Worker 已正確註冊（在開發模式下 PWA 功能會被停用）
 
 ## 安全性說明
 

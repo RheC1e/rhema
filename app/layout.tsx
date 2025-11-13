@@ -8,6 +8,26 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'RHEMA - Microsoft 365 登入',
   description: '航冠國際聯運有限公司員工登入系統',
+  manifest: '/manifest.json',
+  themeColor: '#0078d4',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'RHEMA',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: 'website',
+    siteName: 'RHEMA',
+    title: 'RHEMA - Microsoft 365 登入',
+    description: '航冠國際聯運有限公司員工登入系統',
+  },
+  icons: {
+    icon: '/icons/icon-192x192.png',
+    apple: '/icons/icon-192x192.png',
+  },
 }
 
 export default function RootLayout({
