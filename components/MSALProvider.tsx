@@ -21,7 +21,7 @@ export function MSALProvider({ children }: { children: React.ReactNode }) {
     }
 
     let isMounted = true;
-    let callbackId: string | undefined;
+    let callbackId: string | null = null;
 
     msalInstance
       .initialize()
