@@ -1,6 +1,6 @@
 'use client'
 
-import { EventType, PublicClientApplication } from "@azure/msal-browser";
+import { AuthenticationResult, EventType, PublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
 import { msalConfig } from "@/lib/msalConfig";
 import { useEffect, useState } from "react";
@@ -42,10 +42,14 @@ export function MSALProvider({ children }: { children: React.ReactNode }) {
           }
 
           if (
-            (event.eventType === EventType.LOGIN_SUCCESS || event.eventType === EventType.ACQUIRE_TOKEN_SUCCESS) &&
-            event.payload?.account
+            event.eventType === EventType.LOGIN_SUCCESS ||
+            event.eventType === EventType.ACQUIRE_TOKEN_SUCCESS
           ) {
-            msalInstance.setActiveAccount(event.payload.account);
+            const payload = event.payload as AuthenticationResult | undefined;
+            const account = payload?.account;
+            if (account) {
+              msalInstance.setActiveAccount(account);
+            }
           }
 
           if (event.eventType === EventType.LOGOUT_SUCCESS) {
