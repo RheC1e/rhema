@@ -38,6 +38,7 @@ export default function SharePointAdmin() {
   const [createListError, setCreateListError] = useState<string | null>(null);
   const [newListName, setNewListName] = useState("");
   const [newListDescription, setNewListDescription] = useState("");
+  const [siteUrl, setSiteUrl] = useState(sharePointConfig.defaultSiteUrl);
 
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const [listItems, setListItems] = useState<any[]>([]);
@@ -82,7 +83,7 @@ export default function SharePointAdmin() {
         account: activeAccount,
       });
 
-      const id = await sharePointConfig.getSiteId(tokenResponse.accessToken);
+      const id = await sharePointConfig.getSiteId(tokenResponse.accessToken, siteUrl);
       setSiteId(id);
     } catch (error) {
       console.error("載入網站 ID 失敗:", error);
@@ -316,6 +317,18 @@ export default function SharePointAdmin() {
         </div>
       ) : (
         <>
+          {/* 網站資訊 */}
+          <div className="card" style={{ marginBottom: "1.5rem", background: "#f0f9ff", border: "1px solid #bae6fd" }}>
+            <h3 style={{ marginBottom: "0.5rem" }}>目前使用的 SharePoint 網站</h3>
+            <p style={{ margin: 0, color: "#0369a1", wordBreak: "break-all" }}>
+              {siteUrl}
+            </p>
+            <p style={{ marginTop: "0.5rem", fontSize: "0.9rem", color: "#64748b" }}>
+              💡 <strong>權限說明：</strong>在此網站建立的清單，預設所有群組成員都可以看到。
+              如需設定權限（例如：只有申請人和會計可以看到請款單），請在建立清單後，前往 SharePoint 網站手動設定權限。
+            </p>
+          </div>
+
           {/* 建立新清單 */}
           <div className="card" style={{ marginBottom: "1.5rem" }}>
             <h2 style={{ marginBottom: "1rem" }}>建立新清單</h2>
