@@ -11,7 +11,24 @@ export const sharePointConfig = {
 
   // 取得特定網站的 ID（例如：https://rhema.sharepoint.com/sites/YourSiteName）
   getSiteIdByUrl: async (accessToken: string, siteUrl: string): Promise<string> => {
-    const encodedUrl = encodeURIComponent(siteUrl);
+    // Microsoft Graph API 需要 hostname 和相對路徑
+    // 例如：https://53514268.sharepoint.com/sites/msteams_ffd922
+    // 需要轉換為：53514268.sharepoint.com:/sites/msteams_ffd922
+    let graphUrl: string;
+    
+    try {
+      const url = new URL(siteUrl);
+      const hostname = url.hostname;
+      const pathname = url.pathname;
+      
+      // 格式：hostname:/pathname
+      graphUrl = `${hostname}:${pathname}`;
+    } catch {
+      // 如果解析失敗，直接使用原始 URL
+      graphUrl = siteUrl;
+    }
+    
+    const encodedUrl = encodeURIComponent(graphUrl);
     const response = await fetch(
       `https://graph.microsoft.com/v1.0/sites/${encodedUrl}`,
       {
@@ -22,7 +39,9 @@ export const sharePointConfig = {
     );
 
     if (!response.ok) {
-      throw new Error("無法取得 SharePoint 網站");
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.error?.message || `HTTP ${response.status}: ${response.statusText}`;
+      throw new Error(`無法取得 SharePoint 網站：${errorMessage}`);
     }
 
     const site = await response.json();

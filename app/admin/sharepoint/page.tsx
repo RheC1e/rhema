@@ -87,7 +87,14 @@ export default function SharePointAdmin() {
       setSiteId(id);
     } catch (error) {
       console.error("載入網站 ID 失敗:", error);
-      setSiteIdError((error as Error).message || "無法載入 SharePoint 網站");
+      const errorMessage = (error as Error).message || "無法載入 SharePoint 網站";
+      setSiteIdError(errorMessage);
+      
+      // 顯示更詳細的錯誤資訊
+      console.error("詳細錯誤資訊:", {
+        siteUrl,
+        error: errorMessage,
+      });
     } finally {
       setSiteIdLoading(false);
     }
