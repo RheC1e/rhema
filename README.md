@@ -72,8 +72,18 @@ NEXT_PUBLIC_AZURE_TENANT_ID=您的租用戶識別碼
 - ✅ `profile` - 檢視使用者的基本設定檔
 - ✅ `email` - 檢視使用者的電子郵件地址
 - ✅ `GroupMember.Read.All` - 讀取群組成員資格
+- ✅ `Sites.ReadWrite.All` - SharePoint 讀寫權限（用於建立和管理 SharePoint List）
 
 **重要：** 請確保所有權限都已獲得「管理員同意」。
+
+**新增 SharePoint 權限步驟：**
+1. 前往 Azure 入口網站 > 應用程式註冊 > Teams / Web Login
+2. 點選左側選單的「API 權限」
+3. 點選「新增權限」
+4. 選擇「Microsoft Graph」>「委派權限」
+5. 搜尋並勾選 `Sites.ReadWrite.All`
+6. 點選「新增權限」
+7. 點選「代表 航冠國際聯運有限公司 授與管理員同意」按鈕
 
 **檢查步驟：**
 1. 前往 Azure 入口網站 > 應用程式註冊 > Teams / Web Login

@@ -21,6 +21,7 @@ export const loginRequest: PopupRequest = {
     "profile",
     "email",
     "GroupMember.Read.All",
+    "Sites.ReadWrite.All", // SharePoint 讀寫權限
   ],
 };
 

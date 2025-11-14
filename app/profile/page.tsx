@@ -385,6 +385,11 @@ export default function Profile() {
                     返回我的資料
                   </button>
                 )}
+                {isViewingSelf && (
+                  <Link href="/admin/sharepoint" className="button button-secondary" style={{ textDecoration: "none", display: "inline-block" }}>
+                    SharePoint 管理
+                  </Link>
+                )}
                 <button className="button button-secondary" onClick={handleLogout}>
                   登出
                 </button>
