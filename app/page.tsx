@@ -2,28 +2,44 @@
 
 import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "@/lib/msalConfig";
+import { isMobileDevice } from "@/lib/deviceDetection";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const { instance, accounts } = useMsal();
+  const { instance, accounts, inProgress } = useMsal();
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    // 檢查是否已經登入
-    if (accounts.length > 0) {
-      router.push("/profile");
-    } else {
-      setIsLoading(false);
+    // 等待 MSAL 處理 redirect 回調
+    if (inProgress === "none") {
+      // 檢查是否已經登入
+      if (accounts.length > 0) {
+        router.push("/profile");
+      } else {
+        setIsLoading(false);
+      }
+    } else if (inProgress === "login" || inProgress === "acquireToken") {
+      // 正在處理登入或取得 token，保持載入狀態
+      setIsLoading(true);
     }
-  }, [accounts, router]);
+  }, [accounts, inProgress, router]);
 
   const handleLogin = async () => {
     try {
       setIsLoading(true);
-      await instance.loginPopup(loginRequest);
-      router.push("/profile");
+      
+      // 手機使用 redirect，桌面使用 popup
+      if (isMobileDevice()) {
+        // 手機：使用 redirect（在同一個分頁中跳轉）
+        await instance.loginRedirect(loginRequest);
+        // redirect 會直接跳轉，不會執行到這裡
+      } else {
+        // 桌面：使用 popup（彈出視窗）
+        await instance.loginPopup(loginRequest);
+        router.push("/profile");
+      }
     } catch (error) {
       console.error("登入失敗:", error);
       setIsLoading(false);

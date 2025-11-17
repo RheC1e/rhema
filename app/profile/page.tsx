@@ -4,6 +4,7 @@ import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "@/lib/msalConfig";
 import { graphConfig } from "@/lib/graphConfig";
 import { acquireTokenSafely } from "@/lib/msalHelpers";
+import { isMobileDevice } from "@/lib/deviceDetection";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -300,9 +301,18 @@ export default function Profile() {
   }, [accounts, instance]);
 
   const handleLogout = () => {
-    instance.logoutPopup({
-      postLogoutRedirectUri: typeof window !== "undefined" ? window.location.origin : "/",
-    });
+    const postLogoutRedirectUri = typeof window !== "undefined" ? window.location.origin : "/";
+    
+    // 手機使用 redirect，桌面使用 popup
+    if (isMobileDevice()) {
+      instance.logoutRedirect({
+        postLogoutRedirectUri,
+      });
+    } else {
+      instance.logoutPopup({
+        postLogoutRedirectUri,
+      });
+    }
   };
 
   const initials = useMemo(() => {
