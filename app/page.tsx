@@ -2,7 +2,6 @@
 
 import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "@/lib/msalConfig";
-import { isMobileDevice } from "@/lib/deviceDetection";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -30,16 +29,9 @@ export default function Home() {
     try {
       setIsLoading(true);
       
-      // 手機使用 redirect，桌面使用 popup
-      if (isMobileDevice()) {
-        // 手機：使用 redirect（在同一個分頁中跳轉）
-        await instance.loginRedirect(loginRequest);
-        // redirect 會直接跳轉，不會執行到這裡
-      } else {
-        // 桌面：使用 popup（彈出視窗）
-        await instance.loginPopup(loginRequest);
-        router.push("/profile");
-      }
+      // 統一使用 redirect（在同一個分頁中跳轉）
+      await instance.loginRedirect(loginRequest);
+      // redirect 會直接跳轉，不會執行到這裡
     } catch (error) {
       console.error("登入失敗:", error);
       setIsLoading(false);
