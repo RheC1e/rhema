@@ -3,6 +3,7 @@
 import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "@/lib/msalConfig";
 import { graphConfig } from "@/lib/graphConfig";
+import { acquireTokenSafely } from "@/lib/msalHelpers";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -89,13 +90,10 @@ export default function Profile() {
 
     const fetchMyProfile = async () => {
       try {
-        const tokenResponse = await instance.acquireTokenSilent({
-          ...loginRequest,
-          account: activeAccount,
-        });
+        const accessToken = await acquireTokenSafely(instance, activeAccount);
 
         const headers = {
-          Authorization: `Bearer ${tokenResponse.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         };
 
         const response = await fetch(`${graphConfig.graphMeEndpoint}?$select=${PROFILE_SELECT}`, {
@@ -139,13 +137,10 @@ export default function Profile() {
       setProfileError(null);
 
       try {
-        const tokenResponse = await instance.acquireTokenSilent({
-          ...loginRequest,
-          account: activeAccount,
-        });
+        const accessToken = await acquireTokenSafely(instance, activeAccount);
 
         const baseHeaders = {
-          Authorization: `Bearer ${tokenResponse.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         };
 
         let profileData: ProfileData | null = null;
@@ -241,13 +236,10 @@ export default function Profile() {
       setColleaguesError(null);
 
       try {
-        const tokenResponse = await instance.acquireTokenSilent({
-          ...loginRequest,
-          account: activeAccount,
-        });
+        const accessToken = await acquireTokenSafely(instance, activeAccount);
 
         const headers = {
-          Authorization: `Bearer ${tokenResponse.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         };
 
         const users: Colleague[] = [];

@@ -3,6 +3,7 @@
 import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "@/lib/msalConfig";
 import { sharePointConfig } from "@/lib/sharePointConfig";
+import { acquireTokenSafely } from "@/lib/msalHelpers";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -78,12 +79,9 @@ export default function SharePointAdmin() {
     setSiteIdError(null);
 
     try {
-      const tokenResponse = await instance.acquireTokenSilent({
-        ...loginRequest,
-        account: activeAccount,
-      });
+      const accessToken = await acquireTokenSafely(instance, activeAccount);
 
-      const id = await sharePointConfig.getSiteId(tokenResponse.accessToken, siteUrl);
+      const id = await sharePointConfig.getSiteId(accessToken, siteUrl);
       setSiteId(id);
     } catch (error) {
       console.error("載入網站 ID 失敗:", error);
@@ -110,16 +108,13 @@ export default function SharePointAdmin() {
     setListsError(null);
 
     try {
-      const tokenResponse = await instance.acquireTokenSilent({
-        ...loginRequest,
-        account: activeAccount,
-      });
+      const accessToken = await acquireTokenSafely(instance, activeAccount);
 
       const response = await fetch(
         `https://graph.microsoft.com/v1.0/sites/${siteId}/lists`,
         {
           headers: {
-            Authorization: `Bearer ${tokenResponse.accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         }
       );
@@ -151,17 +146,14 @@ export default function SharePointAdmin() {
     setCreateListError(null);
 
     try {
-      const tokenResponse = await instance.acquireTokenSilent({
-        ...loginRequest,
-        account: activeAccount,
-      });
+      const accessToken = await acquireTokenSafely(instance, activeAccount);
 
       const response = await fetch(
         `https://graph.microsoft.com/v1.0/sites/${siteId}/lists`,
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${tokenResponse.accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -201,17 +193,14 @@ export default function SharePointAdmin() {
     setItemsError(null);
 
     try {
-      const tokenResponse = await instance.acquireTokenSilent({
-        ...loginRequest,
-        account: activeAccount,
-      });
+      const accessToken = await acquireTokenSafely(instance, activeAccount);
 
       // 先取得清單的欄位資訊
       const listResponse = await fetch(
         `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${selectedListId}`,
         {
           headers: {
-            Authorization: `Bearer ${tokenResponse.accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         }
       );
@@ -227,7 +216,7 @@ export default function SharePointAdmin() {
         `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${selectedListId}/items?$expand=fields`,
         {
           headers: {
-            Authorization: `Bearer ${tokenResponse.accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         }
       );
@@ -258,10 +247,7 @@ export default function SharePointAdmin() {
     setAddingItem(true);
 
     try {
-      const tokenResponse = await instance.acquireTokenSilent({
-        ...loginRequest,
-        account: activeAccount,
-      });
+      const accessToken = await acquireTokenSafely(instance, activeAccount);
 
       // 準備欄位資料
       const fields: Record<string, any> = {};
@@ -276,7 +262,7 @@ export default function SharePointAdmin() {
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${tokenResponse.accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
